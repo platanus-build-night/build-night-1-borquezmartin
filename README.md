@@ -5,4 +5,7 @@
 - GitHub: https://github.com/borquezmartin
 - LinkedIn: https://www.linkedin.com/in/borquezmartin
 
-Welcome to Build Night #1! This repository has been created for you to work on your project.
+---
+
+# MVP Compilador de noticias
+Este es el descriptor del MVP, un compilador de noticia que te ayuda a informate de manera mejor y más eficiente.
