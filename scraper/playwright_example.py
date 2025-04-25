@@ -1,37 +1,81 @@
 # pip install playwright
 # playwright install
 
+import os
+import re
+import json
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-def scrap_dynamic():
+def scrap_dynamic(
+    url: str,
+    article_type: str = 'article',
+    limit: int = 10,
+    timeout: int = 10000
+) -> list[dict]:
+    """
+    Scrapea enlaces de The Guardian filtrando por regex en data-link-name:
+      - Extrae cualquier <a> cuyo atributo data-link-name empiece con article_type.
+
+    Args:
+      url: URL de la página principal.
+      article_type: Prefijo a buscar en data-link-name (ej. 'feature', 'analysis', 'news').
+      limit: Máximo de enlaces a devolver.
+      timeout: Tiempo en ms para wait_for_selector.
+
+    Retorna:
+      Lista de dicts con {'type', 'title', 'url'}.
+    """
+    # Compilamos un regex que busque el prefijo al inicio, ignorando espacios:
+    prefix_pattern = re.compile(rf'^\s*{re.escape(article_type)}\b', re.IGNORECASE)
+
     with sync_playwright() as p:
-        # 1. Lanzar Chromium en segundo plano
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        
-        # 2. Ir a la URL y esperar a que cargue
-        page.goto('https://www.theguardian.com/international', 
-                  wait_until='networkidle')
-        
-        # 3. Esperar a selector específico
-        page.wait_for_selector('a[data-link-name="article"]')
-        
-        # 4. Obtener el HTML completo tras ejecución JS
+        page.goto(url, wait_until='networkidle')
+        # Esperamos a que aparezca al menos un enlace con data-link-name
+        page.wait_for_selector('a[data-link-name]', timeout=timeout)
         html = page.content()
         browser.close()
-        
-    # 5. Parsear con BeautifulSoup (opcional)
+
     soup = BeautifulSoup(html, 'html.parser')
-    noticias = []
-    for a in soup.select('a[data-link-name="article"]')[:10]:
-        noticias.append({
-            'titulo': a.get_text(strip=True),
-            'url': a['href']
-        })
-    return noticias
+    resultados = []
+
+    # Recorremos todas las <a> con data-link-name
+    for a in soup.select('a[data-link-name]'):
+        dln = a.get('data-link-name', '')
+        # Si coincide el prefijo con nuestro tipo...
+        if prefix_pattern.match(dln):
+            title = a.get('aria-label') or a.get_text(strip=True)
+            href  = a.get('href')
+            if title and href:
+                resultados.append({
+                    'type':  article_type,
+                    'title': title.strip(),
+                    'url':   href
+                })
+            if len(resultados) >= limit:
+                break
+
+    return resultados
 
 if __name__ == "__main__":
-    resultados = scrap_dynamic()
-    for n in resultados:
-        print(n)
+    news_links_path = os.path.join('..', 'news_sources.json')
+    with open(news_links_path, 'r') as f:
+        news_sources = json.load(f)
+
+    guardian_url = news_sources['news_portal']['the_guardian']
+
+    # Ejemplo: extraer las Features
+    features = scrap_dynamic(guardian_url, article_type='article', limit=5)
+    for f in features:
+        print(f"[{f['type']}] {f['title']}\n   → {f['url']}")
+
+
+    # Ejemplo de uso para cada sección
+    # for kind in ('article', 'feature', 'news'):
+    #     print(f"\n--- {kind.upper()} ---")
+    #     items = scrap_dynamic(url=guardian_url, article_type=kind, limit=5)
+    #     for it in items:
+    #         print(f"[{it['type']}] {it['title']}\n   → {it['url']}")
+
