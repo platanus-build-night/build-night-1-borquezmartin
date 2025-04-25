@@ -1,6 +1,8 @@
 # pip install playwright
 # playwright install
 
+# article_types = {'article', 'feature', 'comment', 'news', 'analysis' }
+
 import os
 import re
 import json
@@ -67,15 +69,14 @@ if __name__ == "__main__":
     guardian_url = news_sources['news_portal']['the_guardian']
 
     # Ejemplo: extraer las Features
-    features = scrap_dynamic(guardian_url, article_type='article', limit=5)
-    for f in features:
-        print(f"[{f['type']}] {f['title']}\n   → {f['url']}")
+    # features = scrap_dynamic(guardian_url, article_type='international', limit=5)
+    # for f in features:
+    #     print(f"[{f['type']}] {f['title']}\n   → {f['url']}")
 
-
-    # Ejemplo de uso para cada sección
-    # for kind in ('article', 'feature', 'news'):
-    #     print(f"\n--- {kind.upper()} ---")
-    #     items = scrap_dynamic(url=guardian_url, article_type=kind, limit=5)
-    #     for it in items:
-    #         print(f"[{it['type']}] {it['title']}\n   → {it['url']}")
+    # Ejemplo de[ uso para cada sección
+    for kind in ['article', 'feature', 'comment', 'news', 'analysis']:
+        print(f"\n--- {kind.upper()} ---")
+        items = scrap_dynamic(url=guardian_url, article_type=kind, limit=5)
+        for it in items:
+            print(f"[{it['type']}] {it['title']}\n   → {it['url']}")
 
