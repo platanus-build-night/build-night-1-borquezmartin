@@ -17,7 +17,12 @@ NEWSPIDER_MODULE = "mynews_spider.spiders"
 #USER_AGENT = "mynews_spider (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
+
+# Ativa el pipeline que agrupa todos los items y escribe un único JSON
+ITEM_PIPELINES = {
+    'mynews_spider.pipelines.BatchJsonWriterPipeline': 300,
+}
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -89,4 +94,7 @@ ROBOTSTXT_OBEY = True
 
 # Set settings whose default value is deprecated to a future-proof value
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
-FEED_EXPORT_ENCODING = "utf-8"
+#FEED_EXPORT_ENCODING = "utf-8"
+EXTENSIONS = {
+    'scrapy.extensions.feedexport.FeedExporter': None,
+}

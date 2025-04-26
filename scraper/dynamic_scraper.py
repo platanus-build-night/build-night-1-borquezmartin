@@ -13,7 +13,7 @@ import asyncio
 
 # --- Configuración por portal --- #
 SCRAP_PROFILES = {
-    'guardian': {
+    'the_guardian': {
         # selector de los <a> que enlazan a los cards
         'link_selector': 'a[data-link-name]',
         # función que decide si un valor de atributo coincide con nuestro tipo
