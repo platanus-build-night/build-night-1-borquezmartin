@@ -1,5 +1,5 @@
 import React from 'react';
-import ArticleCard from './ArticleCard';
+import ArticleCard from './NewsCard';
 
 export default function ArticleList({ articles }) {
   return (

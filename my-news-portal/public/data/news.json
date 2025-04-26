@@ -1,0 +1,23 @@
+[
+    {
+      "id": 1,
+      "title": "Breaking: React 18 Released",
+      "description": "React 18 brings concurrent features & performance boosts.",
+      "content": "Full article about React 18's features...",
+      "imageUrl": "https://via.placeholder.com/600x400"
+    },
+    {
+      "id": 2,
+      "title": "Tailwind CSS v3 Hits GA",
+      "description": "Tailwind's JIT engine is now default.",
+      "content": "In-depth look at Tailwind CSS v3...",
+      "imageUrl": "https://via.placeholder.com/600x400"
+    },
+    {
+      "id": 1, /* duplicate ID to demonstrate filtering */
+      "title": "Breaking: React 18 Released",
+      "description": "Duplicate entry for testing uniqueness.",
+      "content": "Should be filtered out in the app.",
+      "imageUrl": "https://via.placeholder.com/600x400"
+    }
+  ]

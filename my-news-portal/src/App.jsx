@@ -1,49 +1,30 @@
-import React from 'react';
+import React, { Suspense, lazy, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-import ArticleList from './components/ArticleList';
-import articles from './data/articles.json';
+
+const Home = lazy(() => import('./pages/Home'));
+const NewsDetail = lazy(() => import('./pages/NewsDetail'));
 
 export default function App() {
+  // Sidebar open state for shifting content
+  const [isOpen, setIsOpen] = useState(true);
+
   return (
-    <>
-      <Header />
-      <ArticleList articles={articles} />
-    </>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <Header isOpen={isOpen} toggleMenu={() => setIsOpen(open => !open)} />
+
+      {/* Main content shifts with sidebar */}
+      <main
+        className={`flex-1 transition-all duration-300 ease-in-out p-0 ${isOpen ? 'ml-2/5 sm:ml-1/12' : 'ml-0'}`}
+      >
+        <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+          </Routes>
+        </Suspense>
+      </main>
+    </div>
   );
 }
-
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
-
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-
-// export default App

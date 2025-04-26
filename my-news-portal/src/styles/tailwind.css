@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Define CSS variables for light & dark themes */
+:root {
+  --color-base-00: #ffffff;
+  --color-base-05: #1e1e1e;
+  /* ... up to --color-base-100 as needed ... */
+  --color-purple: #7852ee;
+}
+.dark {
+  --color-base-00: #1e1e1e;
+  --color-base-05: #1e1e1e;
+  /* ... overrides for dark ... */
+  --color-purple: #a882ff;
+}
+
+body {
+  background-color: var(--color-base-05);
+  color: var(--color-base-00);
+  font-family: 'PT Sans', sans-serif;
+}
+.font-slab {
+  font-family: 'Roboto Slab', serif;
+}
+
+a:link { 
+  text-decoration: none; 
+} 
