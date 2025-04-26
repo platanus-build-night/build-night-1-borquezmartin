@@ -7,7 +7,9 @@ import os
 import re
 import json
 from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
+import asyncio
 
 # --- Configuración por portal --- #
 SCRAP_PROFILES = {
@@ -106,8 +108,6 @@ def scrap_dynamic(
 
     return out
 
-# dynamic_scraper_async.py
-from playwright.async_api import async_playwright
 
 async def scrap_dynamic_async( url, portal='guardian', article_type='article', limit=10, timeout=10000 ):
     profile = SCRAP_PROFILES[portal]
@@ -146,42 +146,66 @@ async def scrap_dynamic_async( url, portal='guardian', article_type='article', l
 
     return out
 
-if __name__ == "__main__":
-    # Ejemplo de uso
+async def main():
+    # 1. Carga las URLs de tus portales
     news_links_path = os.path.join('..', 'news_sources.json')
-    with open(news_links_path) as f:
+    with open(news_links_path, encoding='utf-8') as f:
         news_sources = json.load(f)
 
-    guardian_url = news_sources['news_portal']['the_guardian']
-    #features = scrap_dynamic(guardian_url, article_type='article', limit=10)
-    
-    # Ejemplo de The Guardian
-    results = {}
-    results['the_guardian'] = []
-    for kind in ['article', 'feature', 'comment', 'news', 'analysis']:
-        print(f"\n--- {kind.upper()} ---")
-        try:
-            features = scrap_dynamic(url=guardian_url, article_type=kind, limit=10)
-        except TypeError:
-            pass
-        
-        for item in features:
-            item['article_type'] = kind
-            # print(f"Title:       {item['title']}")
-            # print(f"Article Type: {item['article_type']}\n")
-            # print(f"URL:         {item['url']}")
-            # print(f"Description: {item['description']}\n")
-        results['the_guardian'].append(features)
-    
-    # Ejemplo de uso para BBC
-    bbc_results = scrap_dynamic(
-        url=news_sources['news_portal']['bbc'],
-        portal='bbc'
+    # 2. Obtén la URL de la BBC
+    bbc_url = news_sources['news_portal']['bbc']
+
+    # 3. Llama a tu scraper asíncrono y espera el resultado
+    bbc_results = await scrap_dynamic_async(
+        url=bbc_url,
+        portal='bbc',
+        limit=10
     )
-    print("BBC:", bbc_results)
-    results['bbc'] = bbc_results
+
+    # 4. Muestra los resultados por pantalla
+    print("BBC results:")
+    print(bbc_results)
+
+if __name__ == "__main__":
+    # Arranca el loop de asyncio y ejecuta main()
+    asyncio.run(main())
+
+# if __name__ == "__main__":
+#     # Ejemplo de uso
+#     news_links_path = os.path.join('..', 'news_sources.json')
+#     with open(news_links_path) as f:
+#         news_sources = json.load(f)
+
+#     guardian_url = news_sources['news_portal']['the_guardian']
+#     #features = scrap_dynamic(guardian_url, article_type='article', limit=10)
     
-    # Save results
-    with open("articles.json", 'w') as json_file:
-        json.dump(results, json_file, ensure_ascii=False)
+#     # Ejemplo de The Guardian
+#     # results = {}
+#     # results['the_guardian'] = []
+#     # for kind in ['article', 'feature', 'comment', 'news', 'analysis']:
+#     #     print(f"\n--- {kind.upper()} ---")
+#     #     try:
+#     #         features = scrap_dynamic(url=guardian_url, article_type=kind, limit=10)
+#     #     except TypeError:
+#     #         pass
+        
+#     #     for item in features:
+#     #         item['article_type'] = kind
+#     #         # print(f"Title:       {item['title']}")
+#     #         # print(f"Article Type: {item['article_type']}\n")
+#     #         # print(f"URL:         {item['url']}")
+#     #         # print(f"Description: {item['description']}\n")
+#     #     results['the_guardian'].append(features)
+    
+#     # Ejemplo de uso para BBC
+#     bbc_results = scrap_dynamic_async(
+#         url=news_sources['news_portal']['bbc'],
+#         portal='bbc'
+#     )
+#     print("BBC:", bbc_results)
+#     # results['bbc'] = bbc_results
+    
+#     # # Save results
+#     # with open("articles.json", 'w') as json_file:
+#     #     json.dump(results, json_file, ensure_ascii=False)
 
