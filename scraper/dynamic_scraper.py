@@ -106,6 +106,45 @@ def scrap_dynamic(
 
     return out
 
+# dynamic_scraper_async.py
+from playwright.async_api import async_playwright
+
+async def scrap_dynamic_async( url, portal='guardian', article_type='article', limit=10, timeout=10000 ):
+    profile = SCRAP_PROFILES[portal]
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page    = await browser.new_page()
+        await page.goto(url, wait_until='networkidle')
+        await page.wait_for_selector(profile['link_selector'], timeout=timeout)
+        html = await page.content()
+        await browser.close()
+    soup = BeautifulSoup(html, 'html.parser')
+    out = []
+
+    for a in soup.select(profile['link_selector']):
+        # extraemos el valor relevante (p.ej. data-link-name o data-testid)
+        val = a.get(profile.get('link_attr', 'data-link-name')) or a.get('data-testid', '')
+        if not profile['link_match'](val, article_type):
+            continue
+
+        href = a.get('href')
+        card = profile['card_ancestor'](a) or a
+
+        title = profile['extract_title'](a, card)
+        desc  = profile['extract_description'](a, card)
+
+        if not (title and href):
+            continue
+
+        out.append({
+            'title':       title,
+            'url':         href,
+            'description': desc
+        })
+        if len(out) >= limit:
+            break
+
+    return out
 
 if __name__ == "__main__":
     # Ejemplo de uso
